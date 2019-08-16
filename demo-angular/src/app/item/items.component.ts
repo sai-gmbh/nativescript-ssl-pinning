@@ -22,7 +22,7 @@ export class ItemsComponent implements OnInit {
     ngOnInit(): void {
         this.items = this.itemService.getItems();
         this.enableSSLPinning();
-        this.http.get('https://httpbin.org/get').subscribe(res => console.log(res))
+        this.http.get('https://httpbin.org/status/500').subscribe(res => console.log(res), err => console.log(err));
     }
 
     enableSSLPinning() {
