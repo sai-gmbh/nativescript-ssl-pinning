@@ -57,6 +57,37 @@ SslPinning.request({
 .catch((error) => console.error('error', error));
 ```
 
+### Angular Support
+> NativescriptSslPinningHttpClientModule internally overrides Angular's XHRBackend 
+> to make request through our SSL Plugin and transforms it back to angular responses.
+> This will keep the interceptors functionality intact.
+```typescript
+import {NativescriptSslPinningHttpClientModule} from "nativescript-ssl-pinning/angular"
+@NgModule({
+  imports: [
+    // ...
+    NativescriptSslPinningHttpClientModule
+  ],
+  declarations: [
+    ExampleComponent,
+  ],
+  schemas: [
+    NO_ERRORS_SCHEMA
+  ]
+})
+export class AppModule {
+}
+
+@Component({...})
+export class ExampleComponent implements OnInit {
+  constructor(private http: HttpClient) {}
+  
+  ngOnInit() {
+    this.http.get('https://httpbin.org/status/500').subscribe(res => console.log(res), err => console.log(err));
+  }
+}
+```
+
 ## Configuration
 ### Installing your SSL certificate
 Create a folder called `assets` in your projects `app` folder like so `<project>/app/assets`.
