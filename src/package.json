@@ -38,7 +38,10 @@
         "Nativescript Https",
         "Nativescript SSL",
         "Nativescript certificate pinning",
-        "Nativesctipt Angular"
+        "Nativesctipt Angular",
+        "secure",
+        "nativescript ssl pinning",
+        "ssl"
     ],
     "author": {
         "name": "Shivang Sehgal",

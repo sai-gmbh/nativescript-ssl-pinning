@@ -154,7 +154,9 @@ You can bypass this behavior by adding the following to your projects `Info.plis
 ## `Android` troubleshooting
 If you app crashes with a message that it's doing too much networkin on the main thread,
 then pass the option `allowLargeResponse` with value `true` to the `request` function.
-
+## Current Issues 
+1. Multipart form requests are not supported by the plugin yet. 
+For Angular users they'll go through Angular's own XHR but for native users it might fail. 
 # Thanks
 Who | Why
 ------------ | -------------
