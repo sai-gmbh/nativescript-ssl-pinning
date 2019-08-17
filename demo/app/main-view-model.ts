@@ -1,9 +1,10 @@
-import { Observable } from 'tns-core-modules/data/observable';
-import { SslPinning } from 'nativescript-ssl-pinning';
+import {Observable} from 'tns-core-modules/data/observable';
+import {SslPinning} from 'nativescript-ssl-pinning';
 import * as fs from 'tns-core-modules/file-system';
 
 export class HelloWorldModel extends Observable {
   public message: string;
+
   constructor() {
     super();
     this.enableSSLPinning();
@@ -16,17 +17,24 @@ export class HelloWorldModel extends Observable {
     SslPinning.enableSSLPinning({host: 'httpbin.org', certificate});
   }
 
-  getRequest(url = 'https://httpbin.org/get', allowLargeResponse = true) {
-      SslPinning.request(
-        {
-          url,
-          method: 'GET',
-          allowLargeResponse
-        })
-        .then(response => console.log('Https.request response', response))
-        .catch(error => {
-          console.error('Https.request error', error);
-          // dialogs.alert(error);
-        });
+  getRequest(url = 'https://httpbin.org/post', allowLargeResponse = true) {
+    const formData = new FormData();
+    formData.append('hello', 'world');
+    formData.append('hello', 'world1');
+    SslPinning.request(
+      {
+        url,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+        allowLargeResponse
+      })
+      .then(response => console.log('SSLPinning.request response', response))
+      .catch(error => {
+        console.error('SSLPinning.request error', error);
+        // dialogs.alert(error);
+      });
   }
 }

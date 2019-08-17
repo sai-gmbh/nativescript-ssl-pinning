@@ -5,15 +5,14 @@ import {
   HttpRequest,
   HttpResponse, HttpXhrBackend, XhrFactory
 } from '@angular/common/http';
-import {Observable, from, of, throwError} from 'rxjs';
+import {Observable, from, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {Injectable} from '@angular/core';
 import {isLocalRequest, processLocalFileRequest} from 'nativescript-angular/http-client/http-utils';
 import {NSFileSystem} from 'nativescript-angular';
 import {HttpsResponse} from "../ssl-pinning.common";
 import {ExcludedService} from "./excluded.service";
-// @ts-ignore
-import {SslPinning} from "../ssl-pinning";
+import {SslPinning} from "../index";
 
 @Injectable()
 export class SslPinningHttpXhrBackend extends HttpXhrBackend {
@@ -22,7 +21,6 @@ export class SslPinningHttpXhrBackend extends HttpXhrBackend {
   }
 
   handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
-    console.log('REQUEST => ', req.url);
     if (isLocalRequest(req.url)) {
       return this.handleLocalFileRequest(req.url);
     }
@@ -62,15 +60,6 @@ export class SslPinningHttpXhrBackend extends HttpXhrBackend {
 
 export function request(req: HttpRequest<any>) {
   const method = req.method as ('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD');
-  SslPinning.request({
-    url: 'https://httpbin.org/status/403',
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    allowLargeResponse: true
-  }).then((res) => console.log(res)).catch((err) => console.log('ERR => ', err));
   return from(SslPinning.request({
     url: req.url,
     body: req.body,

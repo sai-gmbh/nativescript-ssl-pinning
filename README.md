@@ -1,8 +1,23 @@
 # NativeScript-SSL-Pinning
 
+[![NPM version][npm-image]][npm-url]
+[![Downloads][downloads-image]][npm-url]
+[![TotalDownloads][total-downloads-image]][npm-url]
+
+[npm-image]:https://img.shields.io/npm/v/nativescript-ssl-pinning.svg
+[npm-url]:https://www.npmjs.com/package/nativescript-ssl-pinning
+[downloads-image]:http://img.shields.io/npm/dm/nativescript-ssl-pinning.svg
+[total-downloads-image]:http://img.shields.io/npm/dt/nativescript-ssl-pinning.svg?label=total%20downloads
+
 #### A drop-in replacement for the [default http module](https://docs.nativescript.org/cookbook/http#get-response-status-code).
-Note: This plugin is inspired by [nativescript-https](https://github.com/EddyVerbruggen/nativescript-https). Most of the code is taken from this.
+Note: This plugin is inspired by [nativescript-ssl-pinning](https://github.com/EddyVerbruggen/nativescript-https). Most of the code is taken from this.
 I've added angular support and also fixed some long term issues. Huge thanks to the original creator.
+
+#### Some issues as below
+- No support for wild card certificates.
+- The nativescript-https module did not handle any error responses (400 - 500).
+- Out of the box angular support no need to update previous apps just update the HttpClient module import.
+- Added support for multipart forms.
 
 ## Features
 - Modern TLS & SSL security features

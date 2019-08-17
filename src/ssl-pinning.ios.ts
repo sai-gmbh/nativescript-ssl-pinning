@@ -25,12 +25,12 @@ export class SslPinning extends SslPinningCommon {
             policies.secure.pinnedCertificates = NSSet.setWithObject(data);
         }
         policies.secured = true;
-        console.log('nativescript-https > Enabled SSL pinning');
+        console.log('nativescript-ssl-pinning > Enabled SSL pinning');
     }
 
     static disableSSLPinning() {
         policies.secured = false;
-        console.log('nativescript-https > Disabled SSL pinning');
+        console.log('nativescript-ssl-pinning > Disabled SSL pinning');
     }
 
     static AFSuccess(resolve, task: NSURLSessionDataTask, data: NSDictionary<string, any> & NSData & NSArray<any>) {
@@ -69,7 +69,7 @@ export class SslPinning extends SslPinningCommon {
             url: error.userInfo.objectForKey('NSErrorFailingURLKey').description
         };
         if (policies.secured === true) {
-            content.description = 'nativescript-https > Invalid SSL certificate! ' + content.description;
+            content.description = 'nativescript-ssl-pinning > Invalid SSL certificate! ' + content.description;
         }
         let reason = error.localizedDescription;
         resolve({task, content, reason});

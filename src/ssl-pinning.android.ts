@@ -2,7 +2,7 @@ import {
   dataObject,
   HttpsRequestOptions,
   HttpsResponse,
-  HttpsSSLPinningOptions,
+  HttpsSSLPinningOptions, METHODS,
   SslPinningCommon,
 } from './ssl-pinning.common';
 import {isDefined} from "tns-core-modules/utils/types";
@@ -21,6 +21,7 @@ let peer: IPeer = {
   allowInvalidCertificates: false,
   validatesDomainName: true
 };
+
 export class SslPinning extends SslPinningCommon {
   private static Client: okhttp3.OkHttpClient;
 
@@ -38,7 +39,7 @@ export class SslPinning extends SslPinningCommon {
       certificate = okhttp3.CertificatePinner.pin(x509Certificate);
       inputStream.close();
     } catch (error) {
-      console.error('nativescript-https > enableSSLPinning error', error);
+      console.error('nativescript-ssl-pinning > enableSSLPinning error', error);
       return;
     }
     peer.host = options.host;
@@ -47,13 +48,13 @@ export class SslPinning extends SslPinningCommon {
     peer.validatesDomainName = options.validatesDomainName;
     peer.enabled = true;
     this.initializeClient();
-    console.log('nativescript-https > Enabled SSL pinning');
+    console.log('nativescript-ssl-pinning > Enabled SSL pinning');
   }
 
   static disableSSLPinning() {
     peer.enabled = false;
     this.initializeClient();
-    console.log('nativescript-https > Disabled SSL pinning');
+    console.log('nativescript-ssl-pinning > Disabled SSL pinning');
   }
 
   static getClient() {
@@ -95,7 +96,7 @@ export class SslPinning extends SslPinningCommon {
           client.sslSocketFactory(sslContext.getSocketFactory());
 
         } catch (error) {
-          console.error('nativescript-https > client.allowInvalidCertificates error', error);
+          console.error('nativescript-ssl-pinning > client.allowInvalidCertificates error', error);
         }
       }
 
@@ -115,7 +116,7 @@ export class SslPinning extends SslPinningCommon {
           },
         }));
       } catch (error) {
-        console.error('nativescript-https > client.validatesDomainName error', error);
+        console.error('nativescript-ssl-pinning > client.validatesDomainName error', error);
       }
     }
     this.Client = client.build();
@@ -124,39 +125,21 @@ export class SslPinning extends SslPinningCommon {
   static request(opts: HttpsRequestOptions): Promise<HttpsResponse> {
     return new Promise((resolve, reject) => {
       try {
+        if (!(opts.headers && opts.headers['Content-Type'])) {
+          opts.headers = {};
+        }
+        opts.headers['Content-Type'] = <string>opts.headers['Content-Type'] || 'application/json';
         let client = this.getClient();
 
-        let request = new okhttp3.Request.Builder();
-        request.url(opts.url);
-
-        if (opts.headers) {
-          Object.keys(opts.headers).forEach(key => request.addHeader(key, opts.headers[key] as any));
-        }
-
-        const methods = {
-          'GET': 'get',
-          'HEAD': 'head',
-          'DELETE': 'delete',
-          'POST': 'post',
-          'PUT': 'put',
-          'PATCH': 'patch'
-        };
+        let requestBuilder: okhttp3.Request.Builder = new okhttp3.Request.Builder();
+        requestBuilder.url(opts.url);
+        Object.keys(opts.headers).forEach(key => requestBuilder.addHeader(key, opts.headers[key] as any));
 
         if ((['GET', 'HEAD'].indexOf(opts.method) !== -1) || (opts.method === 'DELETE' && !isDefined(opts.body))) {
-          request[methods[opts.method]]();
+          requestBuilder[METHODS[opts.method]]();
         } else {
-          let type = <string>opts.headers['Content-Type'] || 'application/json';
-          let body = <any>dataObject(opts.body) || {};
-          try {
-            // Throws a TypeError ("cyclic object value") exception when a circular reference is found.
-            // Throws a TypeError ("BigInt value can't be serialized in JSON") when trying to stringify a BigInt value.
-            body = JSON.stringify(body);
-          } catch (ignore) {
-          }
-          request[methods[opts.method]](okhttp3.RequestBody.create(
-            okhttp3.MediaType.parse(type),
-            body
-          ));
+          // nothing but request.post(RequestBody.create(...))
+          requestBuilder[METHODS[opts.method]](this.getRequestBody(opts));
         }
 
 
@@ -167,18 +150,11 @@ export class SslPinning extends SslPinningCommon {
           android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.LAX);
         }
 
-        client.newCall(request.build()).enqueue(new okhttp3.Callback({
+        client.newCall(requestBuilder.build()).enqueue(new okhttp3.Callback({
           onResponse: (task, response) => {
             let content;
-            let headers = {};
-            let heads: okhttp3.Headers = response.headers();
-            let i: number, len: number = heads.size();
-            for (i = 0; i < len; i++) {
-              let key = heads.name(i);
-              headers[key] = heads.value(i);
-            }
+            let headers = this.getResponseHeaders(response.headers());
             let statusCode = response.code();
-
             if (response.isSuccessful()) {
               try {
                 content = JSON.parse(response.body().string());
@@ -196,6 +172,33 @@ export class SslPinning extends SslPinningCommon {
         reject(error);
       }
     });
+  }
 
+  static getRequestBody(requestOptions: HttpsRequestOptions): okhttp3.RequestBody {
+    if (this.isMultipartFormRequest(requestOptions.headers)) {
+      console.log('Building Multipart req');
+      const multipartBodyBuilder: okhttp3.MultipartBody.Builder = new okhttp3.MultipartBody.Builder()
+        .setType(okhttp3.MultipartBody.FORM);
+      (requestOptions.body.toString()).split('&')
+        .forEach((keyValue: string) => {
+          const [key, value] = keyValue.split('=');
+          multipartBodyBuilder.addFormDataPart(key, decodeURIComponent(value));
+        });
+      return multipartBodyBuilder.build();
+    }
+    return okhttp3.RequestBody.create(
+      okhttp3.MediaType.parse(<string>requestOptions.headers['Content-Type']),
+      JSON.stringify(dataObject(requestOptions.body))
+    );
+  }
+
+  static getResponseHeaders(headers: okhttp3.Headers) {
+    const mHeaders = {};
+    let i: number, len: number = headers.size();
+    for (i = 0; i < len; i++) {
+      let key = headers.name(i);
+      headers[key] = headers.value(i);
+    }
+    return mHeaders;
   }
 }

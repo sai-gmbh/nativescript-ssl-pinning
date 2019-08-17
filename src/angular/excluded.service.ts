@@ -19,6 +19,6 @@ export class ExcludedService {
   }
 
   skipSSLPinning(req: HttpRequest<any>): boolean {
-    return this.contains(req.url) || ExcludedService.isMultipartFormRequest(req);
+    return this.contains(req.url);
   }
 }

@@ -7,6 +7,8 @@
         "noLib": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
+        "noFallthroughCasesInSwitch": true,
+        "skipLibCheck": true,
         "lib": [
             "es6",
             "dom"
@@ -19,7 +21,6 @@
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "noImplicitUseStrict": false,
-        "noFallthroughCasesInSwitch": true,
         "baseUrl": ".",
         "paths": {
             "*": [
