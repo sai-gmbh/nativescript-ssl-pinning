@@ -12,7 +12,8 @@ import {isLocalRequest, processLocalFileRequest} from 'nativescript-angular/http
 import {NSFileSystem} from 'nativescript-angular';
 import {HttpsResponse} from "../ssl-pinning.common";
 import {ExcludedService} from "./excluded.service";
-import {SslPinning} from "../index";
+// @ts-ignore
+import {SslPinning} from "../ssl-pinning";
 
 @Injectable()
 export class SslPinningHttpXhrBackend extends HttpXhrBackend {
