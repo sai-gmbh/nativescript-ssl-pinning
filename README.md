@@ -13,7 +13,7 @@
 Note: This plugin is inspired by [nativescript-ssl-pinning](https://github.com/EddyVerbruggen/nativescript-https). Most of the code is taken from this.
 I've added angular support and also fixed some long term issues. Huge thanks to the original creator.
 
-#### Some issues as below
+#### Some of the fixed issues are as follows
 - No support for wild card certificates.
 - The nativescript-https module did not handle any error responses (400 - 500).
 - Out of the box angular support no need to update previous apps just update the HttpClient module import.
