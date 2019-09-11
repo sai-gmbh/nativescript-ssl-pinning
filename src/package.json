@@ -1,6 +1,6 @@
 {
     "name": "nativescript-ssl-pinning",
-    "version": "1.1.1",
+    "version": "1.1.4",
     "description": "HttpModule for nativescript with angular support for ssl certificate pinning.",
     "main": "ssl-pinning",
     "typings": "index.d.ts",

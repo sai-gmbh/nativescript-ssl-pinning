@@ -43,6 +43,7 @@ export function dataObject(data: any): any {
   }
   return data || {};
 }
+
 export const METHODS = {
   'GET': 'get',
   'HEAD': 'head',
@@ -51,6 +52,7 @@ export const METHODS = {
   'PUT': 'put',
   'PATCH': 'patch'
 };
+
 export class SslPinningCommon {
   static isMultipartFormRequest(headers): boolean {
     return headers['Content-Type'].includes('application/x-www-form-urlencoded') || headers['Content-Type'].includes('multipart/form-data');

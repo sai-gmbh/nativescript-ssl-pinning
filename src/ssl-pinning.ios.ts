@@ -140,10 +140,6 @@ export class SslPinning extends SslPinningCommon {
                 let dict = response.allHeaderFields;
                 dict.enumerateKeysAndObjectsUsingBlock((k, v) => sendi.headers[k] = v);
             }
-
-            if (AFResponse.reason) {
-                sendi.reason = AFResponse.reason;
-            }
             return Promise.resolve(sendi);
 
         }).catch((AFResponse: {
@@ -151,14 +147,14 @@ export class SslPinning extends SslPinningCommon {
             content: any
             reason?: string
         }) => {
-            let sendi: HttpsResponse = {
+            let sendi = {
                 content: AFResponse.content,
                 headers: {},
-                reason: AFResponse.reason
+                statusText: AFResponse.reason
             };
             let response = AFResponse.task.response as NSHTTPURLResponse;
             if (!isNullOrUndefined(response)) {
-                sendi.statusCode = response.statusCode;
+                sendi['status'] = response.statusCode;
                 let dict = response.allHeaderFields;
                 dict.enumerateKeysAndObjectsUsingBlock((k, v) => sendi.headers[k] = v);
             }
