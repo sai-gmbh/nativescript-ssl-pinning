@@ -1,4 +1,4 @@
-import {HttpsRequestOptions, HttpsResponse, HttpsSSLPinningOptions, SslPinningCommon} from './ssl-pinning.common';
+import {HttpsRequestOptions, HttpsResponse, HttpsSSLPinningOptions, SslPinningCommon, dataObject} from './ssl-pinning.common';
 import {isDefined, isNullOrUndefined, isObject} from "tns-core-modules/utils/types";
 
 interface IPolicies {
@@ -72,7 +72,7 @@ export class SslPinning extends SslPinningCommon {
             content.description = 'nativescript-ssl-pinning > Invalid SSL certificate! ' + content.description;
         }
         let reason = error.localizedDescription;
-        resolve({task, content, reason});
+        reject({task, content, reason});
     }
 
     static request(opts: HttpsRequestOptions): Promise<HttpsResponse> {
@@ -99,7 +99,7 @@ export class SslPinning extends SslPinningCommon {
 
                 let dict: NSMutableDictionary<string, any> = null;
                 if (opts.body) {
-                    let cont = opts.body;
+                    let cont = dataObject(opts.body);
                     if (isObject(cont)) {
                         dict = NSMutableDictionary.new<string, any>();
                         Object.keys(cont).forEach(key => dict.setValueForKey(cont[key] as any, key));
@@ -146,6 +146,23 @@ export class SslPinning extends SslPinningCommon {
             }
             return Promise.resolve(sendi);
 
+        }).catch((AFResponse: {
+            task: NSURLSessionDataTask
+            content: any
+            reason?: string
+        }) => {
+            let sendi: HttpsResponse = {
+                content: AFResponse.content,
+                headers: {},
+                reason: AFResponse.reason
+            };
+            let response = AFResponse.task.response as NSHTTPURLResponse;
+            if (!isNullOrUndefined(response)) {
+                sendi.statusCode = response.statusCode;
+                let dict = response.allHeaderFields;
+                dict.enumerateKeysAndObjectsUsingBlock((k, v) => sendi.headers[k] = v);
+            }
+            return Promise.reject(sendi);
         });
     }
 }
